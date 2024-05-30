@@ -70,11 +70,15 @@ app.get("/listings/:id", async (req, res) => {
 
 //create route
 
-app.post("/listings", async (req, res) => {
-  let newListing = new Listing(req.body.listing);
-  await newListing.save();
-  res.redirect("/listings");
-  res.render("edit.ejs", { newListing });
+app.post("/listings", async (req, res, next) => {
+  try {
+    let newListing = new Listing(req.body.listing);
+    await newListing.save();
+    res.redirect("/listings");
+    res.render("edit.ejs", { newListing });
+  } catch (err) {
+    next(err);
+  }
 });
 
 //edit route
@@ -100,6 +104,12 @@ app.delete("/listings/:id", async (req, res) => {
   let deleteList = await Listing.findByIdAndDelete(id);
   console.log(deleteList);
   res.redirect("/listings");
+});
+
+// middldeware
+
+app.use((err, req, res, next) => {
+  res.send("Something went wrong");
 });
 
 // server
